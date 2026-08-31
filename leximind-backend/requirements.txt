@@ -1,4 +1,4 @@
-# Core
+﻿# Core
 Django==5.1.*
 djangorestframework==3.15.*
 djangorestframework-simplejwt==5.3.*
@@ -36,3 +36,8 @@ pytest==8.3.*
 pytest-django==4.9.*
 pytz
 dj-database-url
+gunicorn==23.*
+
+whitenoise==6.*
+
+
