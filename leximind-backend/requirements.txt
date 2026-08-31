@@ -1,0 +1,38 @@
+# Core
+Django==5.1.*
+djangorestframework==3.15.*
+djangorestframework-simplejwt==5.3.*
+django-cors-headers==4.4.*
+django-filter==24.3
+drf-spectacular==0.27.*
+
+# Database
+psycopg2-binary==2.9.*
+
+# Async / task queue
+celery==5.4.*
+redis==5.1.*
+django-celery-results==2.5.*
+
+# Cryptography / hashing
+cryptography==43.*
+
+# Document text extraction
+pypdf==4.3.*
+Pillow
+# Optional OCR (requires: sudo apt install tesseract-ocr poppler-utils)
+# pytesseract==0.3.*
+# pdf2image==1.17.*
+
+# Logging
+python-json-logger==2.0.*
+
+# Config
+python-decouple==3.8
+
+# Testing
+factory-boy==3.3.*
+pytest==8.3.*
+pytest-django==4.9.*
+pytz
+dj-database-url
