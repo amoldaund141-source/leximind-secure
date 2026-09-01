@@ -130,12 +130,87 @@ class SimulatedLedger(BlockchainLedger):
         return {"verified": verified, "reason": reason, "record": record}
 
 
-# Module-level singleton — swap class for real Hyperledger client here
-_ledger_instance = None
+class NodeFabricLedger(BlockchainLedger):
+    """
+    Connects to the external Node.js Hyperledger Fabric microservice.
+    """
+    def __init__(self):
+        self.node_url = "http://localhost:4000/api/fabric/evidence"
+        
+    def _call_node(self, endpoint, payload):
+        import urllib.request, json
+        try:
+            data = json.dumps(payload).encode('utf-8')
+            req = urllib.request.Request(f"{self.node_url}/{endpoint}", data=data, headers={'Content-Type': 'application/json'})
+            res = urllib.request.urlopen(req, timeout=3)
+            return json.loads(res.read().decode('utf-8'))
+        except Exception as e:
+            logger.error(f"Fabric Node API failed: {e}")
+            return None
 
+    def register(self, document, actor) -> "BlockchainRecord":
+        from apps.blockchain.models import BlockchainRecord
+        doc_hash = document.sha256
+        
+        # Call Node.js Fabric API
+        res = self._call_node('register', {
+            "id": document.short_id,
+            "caseId": document.case.case_id if document.case else "N/A",
+            "type": "DOCUMENT",
+            "description": document.name,
+            "role": getattr(actor, "role_display", "System")
+        })
+        
+        tx_id = res["transaction"]["txId"] if res and res.get("success") else "SIMULATED_FAIL_" + doc_hash[:10]
+        
+        record = BlockchainRecord.objects.create(
+            document=document,
+            document_hash=doc_hash,
+            blockchain_hash=doc_hash,
+            action="Registration",
+            actor=actor,
+            tx_id=tx_id,
+            prev_tx_id="GENESIS",
+            version=document.version,
+        )
+        return record
+
+    def register_evidence(self, evidence, actor) -> "BlockchainRecord":
+        from apps.blockchain.models import BlockchainRecord
+        import hashlib
+        ev_hash = hashlib.sha256(f"{evidence.evidence_id}:{evidence.description}".encode()).hexdigest().upper()
+        
+        # Call Node.js Fabric API
+        res = self._call_node('register', {
+            "id": evidence.evidence_id,
+            "caseId": evidence.case.case_id if evidence.case else "N/A",
+            "type": evidence.type,
+            "description": evidence.description,
+            "role": getattr(actor, "role_display", "System")
+        })
+        
+        tx_id = res["transaction"]["txId"] if res and res.get("success") else "SIMULATED_FAIL_" + ev_hash[:10]
+
+        record = BlockchainRecord.objects.create(
+            evidence=evidence,
+            document_hash=ev_hash,
+            blockchain_hash=ev_hash,
+            action="Registration",
+            actor=actor,
+            tx_id=tx_id,
+            prev_tx_id="GENESIS",
+        )
+        return record
+
+    def verify(self, document_id: str) -> dict:
+        # We can implement verifying via Node later, fallback to standard for now
+        return SimulatedLedger().verify(document_id)
+
+_ledger_instance = None
 
 def get_ledger() -> BlockchainLedger:
     global _ledger_instance
     if _ledger_instance is None:
-        _ledger_instance = SimulatedLedger()
+        # Hot-swapped from SimulatedLedger to NodeFabricLedger!
+        _ledger_instance = NodeFabricLedger()
     return _ledger_instance
