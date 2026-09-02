@@ -135,7 +135,10 @@ class NodeFabricLedger(BlockchainLedger):
     Connects to the external Node.js Hyperledger Fabric microservice.
     """
     def __init__(self):
-        self.node_url = "http://localhost:4000/api/fabric/evidence"
+        import os
+        # Use environment variable for production, fallback to localhost for dev
+        base_url = os.environ.get("FABRIC_NODE_URL", "http://localhost:4000")
+        self.node_url = f"{base_url}/api/fabric/evidence"
         
     def _call_node(self, endpoint, payload):
         import urllib.request, json

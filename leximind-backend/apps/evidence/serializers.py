@@ -49,6 +49,8 @@ class EvidenceCreateSerializer(serializers.ModelSerializer):
 
         # 2. Register on Hyperledger Fabric Simulated Node
         try:
+            import os
+            base_url = os.environ.get("FABRIC_NODE_URL", "http://localhost:4000")
             payload = json.dumps({
                 "id": evidence_id,
                 "caseId": case_id,
@@ -57,7 +59,7 @@ class EvidenceCreateSerializer(serializers.ModelSerializer):
                 "role": validated_data.get("custodian_role", "Forensic Analyst")
             }).encode('utf-8')
             
-            req = urllib.request.Request('http://localhost:4000/api/fabric/evidence/register', data=payload, headers={'Content-Type': 'application/json'})
+            req = urllib.request.Request(f'{base_url}/api/fabric/evidence/register', data=payload, headers={'Content-Type': 'application/json'})
             res = urllib.request.urlopen(req, timeout=3)
             
             if res.status in [200, 201]:
