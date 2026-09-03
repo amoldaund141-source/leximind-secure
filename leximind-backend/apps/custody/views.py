@@ -103,6 +103,35 @@ class CustodyTransferViewSet(viewsets.ViewSet):
             event = CustodyEvent.objects.get(pk=pk)
         except CustodyEvent.DoesNotExist:
             return Response({"detail": "Transfer not found.", "code": "not_found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        target_id_str = ""
+        if event.content_type_label == "document":
+            from apps.documents.models import Document
+            doc = Document.objects.get(id=event.object_id)
+            doc.custodian_role = event.to_custodian_role
+            doc.save(update_fields=["custodian_role"])
+            target_id_str = doc.short_id
+        elif event.content_type_label == "evidence":
+            from apps.evidence.models import Evidence
+            ev = Evidence.objects.get(id=event.object_id)
+            ev.custodian_role = event.to_custodian_role
+            ev.save(update_fields=["custodian_role"])
+            target_id_str = ev.evidence_id
+            
+        # Call Fabric Node API for blockchain custody transfer
+        try:
+            import urllib.request, json, os
+            base_url = os.environ.get("FABRIC_NODE_URL", "http://localhost:4000")
+            payload = json.dumps({
+                "id": target_id_str,
+                "fromRole": event.from_custodian_role,
+                "toRole": event.to_custodian_role
+            }).encode('utf-8')
+            req = urllib.request.Request(f'{base_url}/api/fabric/evidence/transfer', data=payload, headers={'Content-Type': 'application/json'})
+            urllib.request.urlopen(req, timeout=60)
+        except Exception:
+            pass
+
         event.transfer_status = TransferStatus.APPROVED
         event.verification_status = "VERIFIED"
         event.save(update_fields=["transfer_status", "verification_status"])

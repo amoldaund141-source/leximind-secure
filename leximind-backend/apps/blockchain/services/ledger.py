@@ -145,7 +145,7 @@ class NodeFabricLedger(BlockchainLedger):
         try:
             data = json.dumps(payload).encode('utf-8')
             req = urllib.request.Request(f"{self.node_url}/{endpoint}", data=data, headers={'Content-Type': 'application/json'})
-            res = urllib.request.urlopen(req, timeout=3)
+            res = urllib.request.urlopen(req, timeout=60)
             return json.loads(res.read().decode('utf-8'))
         except Exception as e:
             logger.error(f"Fabric Node API failed: {e}")

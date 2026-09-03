@@ -60,7 +60,7 @@ class EvidenceCreateSerializer(serializers.ModelSerializer):
             }).encode('utf-8')
             
             req = urllib.request.Request(f'{base_url}/api/fabric/evidence/register', data=payload, headers={'Content-Type': 'application/json'})
-            res = urllib.request.urlopen(req, timeout=3)
+            res = urllib.request.urlopen(req, timeout=60)
             
             if res.status in [200, 201]:
                 evidence.blockchain_status = "VERIFIED"
