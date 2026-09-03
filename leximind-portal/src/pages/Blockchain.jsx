@@ -68,7 +68,7 @@ export default function BlockchainPage({ push }) {
         </select>
         <Button variant="accent" icon={checking ? RefreshCw : ShieldCheck} disabled={checking || !docId} onClick={runCheck}>{checking ? "Comparing hashes…" : "Compare Hashes"}</Button>
         <div className="flex items-center gap-3 ml-auto">
-          <Badge variant="warning" className="uppercase text-[10px]">Internal Cryptographic Ledger</Badge>
+          <Badge variant="warning" className="uppercase text-[10px]">Hyperledger Fabric Node</Badge>
           <button onClick={load} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
             <RefreshCw className="w-3.5 h-3.5" />
             Sync Ledger

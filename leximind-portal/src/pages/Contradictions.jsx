@@ -1,22 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ShieldQuestion, AlertTriangle, FileText } from "lucide-react";
 import { SectionHeader, Card, Badge, inputCls } from "../components/ui";
-import { CASES, CONTRADICTIONS } from "../data/mockData";
+import { CASES } from "../data/mockData";
+import api from "../services/api";
 
 export default function ContradictionsPage() {
-  const [caseId, setCaseId] = useState("All Cases");
-  const items = caseId === "All Cases" ? CONTRADICTIONS : CONTRADICTIONS.filter((c) => c.caseId === caseId);
+  const [caseId, setCaseId] = useState("CASE-2026-0142"); // Default to a specific case for API ease
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchContradictions = async () => {
+      setLoading(true);
+      try {
+        const { data } = await api.get(`/ai/cases/${caseId}/contradictions/`);
+        setItems(data || []);
+      } catch (err) {
+        console.error(err);
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContradictions();
+  }, [caseId]);
 
   return (
     <div className="space-y-6">
       <SectionHeader icon={ShieldQuestion} title="Contradiction & Anomaly Detection" subtitle="Cross-document inconsistencies flagged by AI — always subject to human review." />
 
       <select value={caseId} onChange={(e) => setCaseId(e.target.value)} className={inputCls + " w-auto"}>
-        <option>All Cases</option>
         {CASES.map((c) => <option key={c.id} value={c.id}>{c.id}</option>)}
       </select>
 
       <div className="space-y-4">
+        {loading && <div className="text-center text-sm text-slate-400 py-10">Running AI contradiction analysis...</div>}
         {items.map((c) => (
           <Card key={c.id}>
             <div className="flex items-start gap-3">

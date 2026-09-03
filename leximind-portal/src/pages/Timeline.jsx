@@ -1,11 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { History, FileText, User } from "lucide-react";
 import { SectionHeader, Card, inputCls } from "../components/ui";
-import { CASES, TIMELINE_EVENTS } from "../data/mockData";
+import { CASES } from "../data/mockData";
+import api from "../services/api";
 
 export default function TimelinePage() {
   const [caseId, setCaseId] = useState("CASE-2026-0142");
-  const events = TIMELINE_EVENTS[caseId] || [];
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchTimeline = async () => {
+      setLoading(true);
+      try {
+        const { data } = await api.get(`/ai/cases/${caseId}/timeline/`);
+        setEvents(data || []);
+      } catch (err) {
+        console.error(err);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTimeline();
+  }, [caseId]);
 
   return (
     <div className="space-y-6">
@@ -16,7 +34,7 @@ export default function TimelinePage() {
       </select>
 
       <Card>
-        {events.length === 0 && <div className="text-sm text-slate-400 text-center py-6">No timeline events recorded for this case yet.</div>}
+        {loading ? <div className="text-sm text-slate-400 text-center py-6">Generating timeline via AI...</div> : events.length === 0 ? <div className="text-sm text-slate-400 text-center py-6">No timeline events recorded for this case yet.</div> : (
         <div className="relative pl-7">
           <div className="absolute left-[13px] top-2 bottom-2 w-0.5 bg-slate-200" />
           <div className="space-y-7">
@@ -40,6 +58,7 @@ export default function TimelinePage() {
             ))}
           </div>
         </div>
+        )}
       </Card>
     </div>
   );
