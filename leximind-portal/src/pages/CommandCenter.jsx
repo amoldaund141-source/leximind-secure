@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Vault, ShieldCheck, FolderKanban, Siren, ArrowRight, Link2, FileText,
 } from "lucide-react";
@@ -6,9 +6,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { SectionHeader, Card } from "../components/ui";
 import { MetricCard, SecurityStatusBadge } from "../components/shared/StatusComponents";
 import { CaseCard, SecurityAlertCard } from "../components/shared/InvestigationComponents";
-import {
-  CASES, DOCUMENTS, CUSTODY_EVENTS, SECURITY_ALERTS, AUDIT_LOG,
-} from "../data/mockData";
+import api from "../services/api";
 
 const VERIFICATION_TREND = [
   { day: "Mon", verified: 172 }, { day: "Tue", verified: 190 }, { day: "Wed", verified: 205 },
@@ -17,10 +15,19 @@ const VERIFICATION_TREND = [
 ];
 
 export default function CommandCenter({ role, userName, navigate }) {
-  const activeCases = CASES.filter((c) => c.status === "ACTIVE");
-  const recentDocs = DOCUMENTS.slice(0, 5);
-  const recentCustody = CUSTODY_EVENTS.slice(-5).reverse();
-  const openAlerts = SECURITY_ALERTS.filter((a) => a.status !== "RESOLVED").slice(0, 3);
+  const [activeCases, setActiveCases] = useState([]);
+  const [recentDocs, setRecentDocs] = useState([]);
+  const [recentCustody, setRecentCustody] = useState([]);
+  const [openAlerts, setOpenAlerts] = useState([]);
+  const [auditLog, setAuditLog] = useState([]);
+
+  useEffect(() => {
+    api.getCases().then(res => setActiveCases((res || []).filter(c => c.status === "ACTIVE"))).catch(()=>{});
+    api.getDocuments().then(res => setRecentDocs((res || []).slice(0, 5))).catch(()=>{});
+    api.getCustodyEvents().then(res => setRecentCustody((res || []).slice(0, 5))).catch(()=>{});
+    api.getSecurityAlerts().then(res => setOpenAlerts((res || []).filter(a => a.status !== "RESOLVED").slice(0, 3))).catch(()=>{});
+    api.getAuditLog().then(res => setAuditLog((res || []).slice(0, 5))).catch(()=>{});
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -34,7 +41,7 @@ export default function CommandCenter({ role, userName, navigate }) {
         <MetricCard icon={Vault} label="Secure Documents" value="1,248" trend={{ up: true, label: "+34 this week" }} tone="cyan" />
         <MetricCard icon={ShieldCheck} label="Blockchain Verified" value="1,187" trend={{ up: true, label: "95.1% coverage" }} tone="emerald" />
         <MetricCard icon={FolderKanban} label="Active Investigations" value="42" trend={{ up: true, label: "+3 this month" }} tone="cyan" />
-        <MetricCard icon={Siren} label="Security Alerts" value="03" trend={{ up: false, label: "1 critical, open" }} tone="red" />
+        <MetricCard icon={Siren} label="Security Alerts" value={openAlerts.length.toString().padStart(2, "0")} trend={{ up: false, label: `${openAlerts.length} critical, open` }} tone="red" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -71,7 +78,7 @@ export default function CommandCenter({ role, userName, navigate }) {
         <Card>
           <SectionHeader title="Active Investigations" action={<button onClick={() => navigate("cases")} className="text-xs font-medium text-cyan-700 flex items-center gap-1">Case Management <ArrowRight className="w-3.5 h-3.5" /></button>} />
           <div className="grid sm:grid-cols-2 gap-3">
-            {activeCases.map((c) => <CaseCard key={c.id} c={c} onOpen={() => navigate(`cases/${c.id}`)} />)}
+            {activeCases.map((c) => <CaseCard key={c.id || c.case_id} c={c} onOpen={() => navigate(`cases/${c.id || c.case_id}`)} />)}
           </div>
         </Card>
 
@@ -84,10 +91,10 @@ export default function CommandCenter({ role, userName, navigate }) {
                   <FileText className="w-4 h-4 text-slate-400 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-sm font-medium text-slate-800 truncate">{d.name}</div>
-                    <div className="text-xs text-slate-400">{d.caseId} · {d.uploadedAt}</div>
+                    <div className="text-xs text-slate-400">{d.case_id || d.caseId} · {d.upload_date ? d.upload_date.split("T")[0] : d.uploadedAt}</div>
                   </div>
                 </div>
-                <SecurityStatusBadge status={d.blockchainStatus} />
+                <SecurityStatusBadge status={d.blockchain_status || d.blockchainStatus} />
               </button>
             ))}
           </div>
@@ -103,11 +110,11 @@ export default function CommandCenter({ role, userName, navigate }) {
                 <div className="flex items-center gap-2.5 min-w-0">
                   <Link2 className="w-4 h-4 text-slate-400 shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-sm font-medium text-slate-800 truncate">{c.action}</div>
-                    <div className="text-xs text-slate-400 truncate">{c.targetName} · {c.user}</div>
+                    <div className="text-sm font-medium text-slate-800 truncate">{c.action || "Custody Transferred"}</div>
+                    <div className="text-xs text-slate-400 truncate">{c.object_id || c.targetName} · {c.user_name || c.user}</div>
                   </div>
                 </div>
-                <span className="text-xs text-slate-400 shrink-0">{c.timestamp.split(",")[0]}</span>
+                <span className="text-xs text-slate-400 shrink-0">{c.timestamp ? new Date(c.timestamp).toLocaleDateString() : ""}</span>
               </button>
             ))}
           </div>
@@ -116,13 +123,13 @@ export default function CommandCenter({ role, userName, navigate }) {
         <Card>
           <SectionHeader title="Recent Security Events" action={<button onClick={() => navigate("audit")} className="text-xs font-medium text-cyan-700 flex items-center gap-1">Audit ledger <ArrowRight className="w-3.5 h-3.5" /></button>} />
           <div className="divide-y divide-slate-100">
-            {AUDIT_LOG.slice(0, 5).map((l) => (
+            {auditLog.map((l) => (
               <button key={l.id} onClick={() => navigate("audit")} className="w-full text-left py-2.5 flex items-center justify-between gap-2 hover:bg-slate-50 px-2 -mx-2 rounded-lg transition-colors">
                 <div className="min-w-0">
-                  <div className="text-sm font-medium text-slate-800 truncate">{l.event}</div>
-                  <div className="text-xs text-slate-400 truncate">{l.actor} · {l.target}</div>
+                  <div className="text-sm font-medium text-slate-800 truncate">{l.action || l.event}</div>
+                  <div className="text-xs text-slate-400 truncate">{l.user_name || l.actor} · {l.target_str || l.target}</div>
                 </div>
-                <span className="text-xs text-slate-400 shrink-0">{l.timestamp.split(",")[0]}</span>
+                <span className="text-xs text-slate-400 shrink-0">{l.timestamp ? new Date(l.timestamp).toLocaleDateString() : ""}</span>
               </button>
             ))}
           </div>
