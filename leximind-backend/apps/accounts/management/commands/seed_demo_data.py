@@ -381,6 +381,56 @@ class Command(BaseCommand):
                 TimelineEvent.objects.create(case=case, **ev)
         self.stdout.write("  Timeline events seeded")
 
+        # --- SEED CASE-2026-0071 FOR SIH END-TO-END DEMO ---
+        try:
+            case71 = Case.objects.get(case_id="CASE-2026-0071")
+            case71.status = "ACTIVE"
+            case71.save()
+
+            # Timeline
+            events = [
+                dict(date="15 Jan 2025", event="First anomalous shell vendor invoice submitted", source="Vendor_Invoice_Ledger_0071.xlsx", related_entity="Sanjay Oberoi"),
+                dict(date="02 Apr 2026", event="Internal audit flags recurring identical invoice amounts", source="Audit_Report_Q1.pdf", related_entity="Finance Dept"),
+                dict(date="04 Apr 2026", event="Corporate embezzlement case officially opened", source="CASE-2026-0071", related_entity="Sanjay Oberoi")
+            ]
+            for ev in events: TimelineEvent.objects.create(case=case71, **ev)
+
+            # Contradictions
+            Contradiction.objects.create(
+                case=case71, 
+                title="Invoice Discrepancy - Date vs Service Window", 
+                statements=[
+                    {"source": "Vendor_Invoice_Ledger_0071.xlsx", "claim": "Service window closed Dec 31st"}, 
+                    {"source": "Invoice_5592_Scan.pdf", "claim": "Invoice dated Jan 15th for ongoing services"}
+                ], 
+                finding="AI detected billing for services outside the authorized contract window.", 
+                status="Requires Human Review"
+            )
+
+            # Knowledge Graph
+            NODES = [
+                ("n71_1","person","Sanjay Oberoi"), ("n71_2","organization","Shell Vendor Corp"), 
+                ("n71_3","document","Vendor_Invoice_Ledger_0071.xlsx"), ("n71_4","case","CASE-2026-0071")
+            ]
+            EDGES = [
+                ("n71_1","n71_2","authorized payments to"), ("n71_2","n71_3","billed via"), 
+                ("n71_3","n71_4","evidence in"), ("n71_1","n71_4","subject of")
+            ]
+            for node_id, ntype, label in NODES: KnowledgeGraphNode.objects.create(case=case71, node_id=node_id, type=ntype, label=label)
+            for src, tgt, rel in EDGES: KnowledgeGraphEdge.objects.create(case=case71, source_node=src, target_node=tgt, relation=rel)
+
+            # QA
+            thread, _ = CaseQAThread.objects.get_or_create(case=case71)
+            if not CaseQAMessage.objects.filter(thread=thread).exists():
+                CaseQAMessage.objects.create(
+                    thread=thread, role="assistant",
+                    text="I am ready to answer questions about CASE-2026-0071 (Corporate Embezzlement).",
+                    sources=[],
+                )
+            self.stdout.write("  Seeded CASE-2026-0071 AI data successfully for End-to-End Test")
+        except Exception as e:
+            self.stdout.write(f"  Warning: failed to seed CASE-2026-0071 AI data: {e}")
+
         # Knowledge graph
         KnowledgeGraphNode.objects.all().delete()
         KnowledgeGraphEdge.objects.all().delete()
