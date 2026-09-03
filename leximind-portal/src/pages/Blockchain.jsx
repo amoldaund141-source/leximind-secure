@@ -45,7 +45,7 @@ export default function BlockchainPage({ push }) {
     try {
       const res = await api.verifyHash(docId);
       setResult("done");
-      const isValid = res.is_valid;
+      const isValid = res.verified;
       push?.(isValid ? "Blockchain verification successful." : "Verification failed — hash mismatch detected.", isValid ? "success" : "error");
     } catch (e) {
       push?.("Verification failed: " + e.message, "error");
