@@ -13,7 +13,12 @@ export default function ContradictionsPage() {
     const fetchContradictions = async () => {
       setLoading(true);
       try {
-        const { data } = await api.get(`/ai/cases/${caseId}/contradictions/`);
+        const token = sessionStorage.getItem("leximind_secure_session") ? JSON.parse(sessionStorage.getItem("leximind_secure_session")).access : null;
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api"}/ai/cases/${caseId}/contradictions/`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Failed to fetch contradictions");
+        const data = await res.json();
         setItems(data || []);
       } catch (err) {
         console.error(err);

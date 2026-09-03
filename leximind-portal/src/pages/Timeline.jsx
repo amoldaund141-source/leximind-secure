@@ -13,7 +13,12 @@ export default function TimelinePage() {
     const fetchTimeline = async () => {
       setLoading(true);
       try {
-        const { data } = await api.get(`/ai/cases/${caseId}/timeline/`);
+        const token = sessionStorage.getItem("leximind_secure_session") ? JSON.parse(sessionStorage.getItem("leximind_secure_session")).access : null;
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api"}/ai/cases/${caseId}/timeline/`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Failed to fetch timeline");
+        const data = await res.json();
         setEvents(data || []);
       } catch (err) {
         console.error(err);
