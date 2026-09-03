@@ -148,6 +148,48 @@ def trigger_ai_analysis(doc_pk: int):
                 "related_doc_names": data.get("relatedDocs", []),
             },
         )
+        
+        # --- DYNAMICALLY UPDATE TIMELINE ---
+        from apps.ai.models import TimelineEvent, KnowledgeGraphNode, KnowledgeGraphEdge
+        for ev in data.get("importantDates", []):
+            TimelineEvent.objects.create(
+                case=doc.case,
+                date=ev.get("date", "Unknown Date")[:20],
+                event=ev.get("event", "Unknown Event"),
+                source=ev.get("source", doc.name)[:50],
+                related_entity="AI Extracted"
+            )
+            
+        # --- DYNAMICALLY UPDATE KNOWLEDGE GRAPH ---
+        entities = data.get("entities", {})
+        doc_node_id = f"doc_{doc.id}"
+        KnowledgeGraphNode.objects.get_or_create(
+            case=doc.case, 
+            node_id=doc_node_id, 
+            defaults={"type": "document", "label": doc.name[:100]}
+        )
+        
+        def _add_nodes(entity_list, node_type):
+            for e in entity_list:
+                if not e: continue
+                safe_id = f"e_{abs(hash(e))}"
+                KnowledgeGraphNode.objects.get_or_create(
+                    case=doc.case, 
+                    node_id=safe_id, 
+                    defaults={"type": node_type, "label": str(e)[:100]}
+                )
+                KnowledgeGraphEdge.objects.create(
+                    case=doc.case, 
+                    source_node=safe_id, 
+                    target_node=doc_node_id, 
+                    relation="mentioned in"
+                )
+                
+        _add_nodes(entities.get("people", []), "person")
+        _add_nodes(entities.get("organizations", []), "organization")
+        _add_nodes(entities.get("locations", []), "location")
+        _add_nodes(entities.get("phones", []), "phone")
+
         logger.info("AI analysis complete for doc %s", doc.short_id)
     except Exception as exc:
         logger.warning("AI analysis failed for doc %s: %s", doc_pk, exc)

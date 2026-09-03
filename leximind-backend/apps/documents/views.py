@@ -322,6 +322,14 @@ def _process_upload_sync(pipeline, file_obj, case, user, classification):
         log_event(AuditEvent.DOCUMENT_ENCRYPTED, None, f"{filename} (AES-256)")
         log_event(AuditEvent.BLOCKCHAIN_REGISTERED, None, filename, tx_id)
 
+        try:
+            from .tasks import trigger_ai_analysis
+            # Run synchronously since we are already in the sync fallback
+            trigger_ai_analysis(doc.id)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Sync AI analysis failed: {e}")
+
     except Exception as exc:
         pipeline.current_stage = PipelineStage.FAILED
         pipeline.error = str(exc)
