@@ -153,6 +153,7 @@ class NodeFabricLedger(BlockchainLedger):
 
     def register(self, document, actor) -> "BlockchainRecord":
         from apps.blockchain.models import BlockchainRecord
+        import time
         doc_hash = document.sha256
         
         # Call Node.js Fabric API
@@ -164,7 +165,7 @@ class NodeFabricLedger(BlockchainLedger):
             "role": getattr(actor, "role_display", "System")
         })
         
-        tx_id = res["transaction"]["txId"] if res and res.get("success") else "SIMULATED_FAIL_" + doc_hash[:10]
+        tx_id = res["transaction"]["txId"] if res and res.get("success") else "SIMULATED_FAIL_" + doc_hash[:10] + str(int(time.time()))
         
         record = BlockchainRecord.objects.create(
             document=document,
@@ -181,6 +182,7 @@ class NodeFabricLedger(BlockchainLedger):
     def register_evidence(self, evidence, actor) -> "BlockchainRecord":
         from apps.blockchain.models import BlockchainRecord
         import hashlib
+        import time
         ev_hash = hashlib.sha256(f"{evidence.evidence_id}:{evidence.description}".encode()).hexdigest().upper()
         
         # Call Node.js Fabric API
@@ -192,7 +194,7 @@ class NodeFabricLedger(BlockchainLedger):
             "role": getattr(actor, "role_display", "System")
         })
         
-        tx_id = res["transaction"]["txId"] if res and res.get("success") else "SIMULATED_FAIL_" + ev_hash[:10]
+        tx_id = res["transaction"]["txId"] if res and res.get("success") else "SIMULATED_FAIL_" + ev_hash[:10] + str(int(time.time()))
 
         record = BlockchainRecord.objects.create(
             evidence=evidence,
