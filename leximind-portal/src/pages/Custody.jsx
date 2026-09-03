@@ -46,6 +46,24 @@ export default function CustodyPage({ push }) {
     }
   };
 
+  const [formData, setFormData] = useState({ targetId: "", toCustodianRole: "", caseId: "CASE-2026-0071", reason: "" });
+
+  const handleTransferSubmit = async () => {
+    try {
+      await api.requestCustodyTransfer({
+        targetType: "document",
+        targetId: formData.targetId,
+        caseId: formData.caseId,
+        toCustodianRole: formData.toCustodianRole
+      });
+      setTransferOpen(false);
+      push?.("Custody transfer requested successfully! (Pending approval)", "success");
+      load(); // reload events
+    } catch (err) {
+      push?.("Failed to request transfer: " + err.message, "error");
+    }
+  };
+
   const events = caseFilter === "All Cases" ? allEvents : allEvents.filter((e) => e.caseId === caseFilter || e.case_id === caseFilter);
 
   return (
@@ -68,10 +86,11 @@ export default function CustodyPage({ push }) {
 
       <Modal open={transferOpen} onClose={() => setTransferOpen(false)} title="Transfer Custody" width="max-w-sm">
         <div className="space-y-3">
-          <Field label="Document / Evidence ID"><input className={inputCls} placeholder="e.g. EVID-3301" /></Field>
-          <Field label="Transfer to"><input className={inputCls} placeholder="Officer or role" /></Field>
-          <Field label="Reason"><textarea rows={2} className={inputCls} placeholder="Reason for transfer…" /></Field>
-          <Button variant="accent" className="w-full justify-center" onClick={() => { setTransferOpen(false); push?.("Custody transfer recorded and hashed to the audit ledger.", "success"); }}>Confirm Transfer</Button>
+          <Field label="Case ID"><input className={inputCls} value={formData.caseId} onChange={(e) => setFormData({...formData, caseId: e.target.value})} placeholder="e.g. CASE-2026-0071" /></Field>
+          <Field label="Document ID"><input className={inputCls} value={formData.targetId} onChange={(e) => setFormData({...formData, targetId: e.target.value})} placeholder="e.g. doc10" /></Field>
+          <Field label="Transfer to Role"><input className={inputCls} value={formData.toCustodianRole} onChange={(e) => setFormData({...formData, toCustodianRole: e.target.value})} placeholder="e.g. Supervisory Officer" /></Field>
+          <Field label="Reason"><textarea rows={2} className={inputCls} value={formData.reason} onChange={(e) => setFormData({...formData, reason: e.target.value})} placeholder="Reason for transfer…" /></Field>
+          <Button variant="accent" className="w-full justify-center" onClick={handleTransferSubmit}>Confirm Transfer</Button>
         </div>
       </Modal>
     </div>
