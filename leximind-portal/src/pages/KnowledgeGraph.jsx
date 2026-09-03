@@ -42,12 +42,17 @@ export default function KnowledgeGraphPage() {
   }, [caseId]);
 
   const positions = useMemo(() => {
-    const cx0 = 300, cy0 = 230, r = 175;
+    const cx0 = 400, cy0 = 300, r = 230;
     const map = {};
     if (graph.nodes) {
       graph.nodes.forEach((n, i) => {
         const angle = (2 * Math.PI * i) / graph.nodes.length - Math.PI / 2;
-        map[n.id] = { x: cx0 + r * Math.cos(angle), y: cy0 + r * Math.sin(angle) };
+        const isTopHalf = Math.sin(angle) < -0.1;
+        map[n.id] = { 
+          x: cx0 + r * Math.cos(angle), 
+          y: cy0 + r * Math.sin(angle),
+          textY: isTopHalf ? -38 : 42
+        };
       });
     }
     return map;
@@ -74,15 +79,25 @@ export default function KnowledgeGraphPage() {
       <Card>
         {loading ? <div className="text-sm text-slate-400 text-center py-10">Generating knowledge graph via AI...</div> : (
         <div className="overflow-x-auto">
-          <svg viewBox="0 0 600 460" className="w-full min-w-[560px] h-[460px]">
+          <svg viewBox="0 0 800 600" className="w-full min-w-[750px] h-[550px]">
             {graph.edges && graph.edges.map((e, i) => {
               const a = positions[e.source], b = positions[e.target];
               if (!a || !b) return null;
               const dim = connected && !(connected.has(e.source) && connected.has(e.target));
+              
+              // Angle for rotating edge text so it reads left-to-right along the line
+              const angleDeg = Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI);
+              const readAngle = angleDeg > 90 || angleDeg < -90 ? angleDeg + 180 : angleDeg;
+
               return (
                 <g key={i} opacity={dim ? 0.15 : 1}>
                   <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#94a3b8" strokeWidth={1.5} />
-                  <text x={(a.x + b.x) / 2} y={(a.y + b.y) / 2 - 4} fontSize="9" fill="#64748b" textAnchor="middle" className="font-mono-data">{e.relation}</text>
+                  <g transform={`translate(${(a.x + b.x) / 2}, ${(a.y + b.y) / 2})`}>
+                    <rect x="-30" y="-8" width="60" height="14" fill="white" opacity="0.8" rx="4" />
+                    <text y="3" fontSize="9" fill="#64748b" textAnchor="middle" className="font-mono-data" transform={`rotate(${readAngle})`}>
+                      {e.relation}
+                    </text>
+                  </g>
                 </g>
               );
             })}
@@ -94,7 +109,7 @@ export default function KnowledgeGraphPage() {
               return (
                 <g key={n.id} transform={`translate(${p.x},${p.y})`} className="cursor-pointer" opacity={dim ? 0.3 : 1} onClick={() => setActiveNode(activeNode === n.id ? null : n.id)}>
                   <circle r={activeNode === n.id ? 26 : 22} fill={meta.color} stroke="#fff" strokeWidth={3} />
-                  <text y={40} textAnchor="middle" fontSize="11" fill="#1e293b" fontWeight={600}>{n.label.length > 20 ? n.label.slice(0, 18) + "..." : n.label}</text>
+                  <text y={p.textY} textAnchor="middle" fontSize="11" fill="#1e293b" fontWeight={600}>{n.label.length > 20 ? n.label.slice(0, 18) + "..." : n.label}</text>
                 </g>
               );
             })}
