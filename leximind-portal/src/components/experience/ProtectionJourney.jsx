@@ -21,7 +21,7 @@ export default function ProtectionJourney() {
         <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-cyan-300 bg-cyan-500/10 border border-cyan-400/20 rounded-full px-3 py-1 mb-4">
           The Journey
         </span>
-        <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">How Lexi Guard Protects a Document</h2>
+        <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">How LexiMind Protects a Document</h2>
         <p className="text-slate-400 mt-3 text-sm sm:text-base">Every file that enters the platform passes through six irreversible checkpoints before it's trusted.</p>
       </div>
 

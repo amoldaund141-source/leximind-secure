@@ -21,7 +21,7 @@ export default function TopBar({ role, userName, badge, onLogout, language, setL
             <ShieldHalf className="w-5 h-5 text-slate-950" />
           </div>
           <div className="hidden sm:block text-left">
-            <div className="text-sm font-bold leading-tight tracking-wide">Lexi Guard</div>
+            <div className="text-sm font-bold leading-tight tracking-wide">LexiMind Secure</div>
             <div className="text-[10px] text-slate-400 leading-tight">Secure · Verify · Trace · Investigate</div>
           </div>
         </button>

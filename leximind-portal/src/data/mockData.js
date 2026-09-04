@@ -1,5 +1,5 @@
 /* ============================================================================
-   Lexi Guard — CENTRALIZED MOCK DATA
+   LEXIMIND SECURE — CENTRALIZED MOCK DATA
    -----------------------------------------------------------------------
    Every demo entity used across the app lives here. Nothing is hardcoded
    inside individual pages/components. When a real Node/Express backend is

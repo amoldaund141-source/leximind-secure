@@ -12,14 +12,14 @@ export const FEATURES = [
     icon: Vault,
     title: "Secure Document Vault",
     tag: "AES-256 · Encrypted at rest",
-    desc: "Every document is sealed the moment it enters Lexi Guard — AES-256 encrypted, hash-fingerprinted, and stored behind role-gated access. Nothing leaves the vault unlogged.",
+    desc: "Every document is sealed the moment it enters LexiMind — AES-256 encrypted, hash-fingerprinted, and stored behind role-gated access. Nothing leaves the vault unlogged.",
   },
   {
     id: "ai",
     icon: Search,
     title: "AI-Powered Search & Analysis",
     tag: "Entity extraction · Summarization",
-    desc: "Ask a question in plain language and Lexi Guard reads across every authorized document — surfacing people, dates, locations and connections in seconds, always with cited sources.",
+    desc: "Ask a question in plain language and LexiMind reads across every authorized document — surfacing people, dates, locations and connections in seconds, always with cited sources.",
   },
   {
     id: "tamper",
@@ -47,7 +47,7 @@ export const FEATURES = [
     icon: History,
     title: "Investigation Timeline",
     tag: "Auto-reconstructed",
-    desc: "Lexi Guard stitches dates and events extracted from case documents into a single chronological narrative — turning scattered paperwork into an investigative story.",
+    desc: "LexiMind stitches dates and events extracted from case documents into a single chronological narrative — turning scattered paperwork into an investigative story.",
   },
 ];
 
