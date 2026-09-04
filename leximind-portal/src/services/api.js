@@ -10,7 +10,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api
 
 function getToken() {
   try {
-    const raw = sessionStorage.getItem("leximind_secure_session");
+    const raw = sessionStorage.getItem("Lexi Guard_secure_session");
     if (!raw) return null;
     return JSON.parse(raw).access;
   } catch {

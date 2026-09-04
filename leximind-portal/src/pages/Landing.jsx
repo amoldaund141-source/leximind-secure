@@ -35,7 +35,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-5 h-16">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center"><ShieldHalf className="w-4.5 h-4.5 text-slate-950" /></div>
-            <span className="font-bold tracking-wide text-sm sm:text-base">LexiMind Secure</span>
+            <span className="font-bold tracking-wide text-sm sm:text-base">Lexi Guard</span>
           </div>
           <Link to="/login"><Button variant="accent" size="sm">Officer Sign In</Button></Link>
         </div>
@@ -73,7 +73,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="hero-word text-slate-400 mt-6 max-w-lg mx-auto lg:mx-0 text-sm sm:text-base leading-relaxed" style={{ animationDelay: "0.72s" }}>
-              LexiMind Secure encrypts, hashes, and blockchain-verifies every piece of case evidence — giving
+              Lexi Guard encrypts, hashes, and blockchain-verifies every piece of case evidence — giving
               investigation officers, forensic analysts and legal teams one trusted system of record from first
               upload to final verdict.
             </p>
@@ -163,7 +163,7 @@ export default function LandingPage() {
       {/* -------------------------------------------------- FOOTER -------------------------------------------------- */}
       <footer className="border-t border-white/10">
         <div className="max-w-6xl mx-auto px-5 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <div className="flex items-center gap-2"><ShieldHalf className="w-4 h-4 text-cyan-500" /> LexiMind Secure — AI-Powered Secure Legal & Investigation Intelligence Platform</div>
+          <div className="flex items-center gap-2"><ShieldHalf className="w-4 h-4 text-cyan-500" /> Lexi Guard — AI-Powered Secure Legal & Investigation Intelligence Platform</div>
           <div>Prototype for SIH 2026 · Not for operational use</div>
         </div>
       </footer>

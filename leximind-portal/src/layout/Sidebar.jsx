@@ -59,7 +59,7 @@ export default function Sidebar({ page, setPage, role, mobileOpen, setMobileOpen
             <div className="flex items-center justify-between px-4 h-16 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center"><ShieldHalf className="w-4 h-4 text-cyan-400" /></div>
-                <span className="font-bold text-slate-900">LexiMind Secure</span>
+                <span className="font-bold text-slate-900">Lexi Guard</span>
               </div>
               <button onClick={() => setMobileOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100"><X className="w-4 h-4" /></button>
             </div>

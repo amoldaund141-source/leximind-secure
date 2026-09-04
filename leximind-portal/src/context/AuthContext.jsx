@@ -8,7 +8,7 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
-      const raw = sessionStorage.getItem("leximind_secure_session");
+      const raw = sessionStorage.getItem("Lexi Guard_secure_session");
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -22,10 +22,10 @@ export function AuthProvider({ children }) {
     setAuthError("");
     try {
       const authedUser = await api.login(username, password);
-      sessionStorage.setItem("leximind_secure_session", JSON.stringify(authedUser));
+      sessionStorage.setItem("Lexi Guard_secure_session", JSON.stringify(authedUser));
       const meData = await api.getMe();
       const fullUser = { ...authedUser, allowedPages: meData.allowedPages, permissions: meData.permissions };
-      sessionStorage.setItem("leximind_secure_session", JSON.stringify(fullUser));
+      sessionStorage.setItem("Lexi Guard_secure_session", JSON.stringify(fullUser));
       setUser(fullUser);
       return fullUser;
     } catch (err) {
@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
     setAuthError("");
     try {
       const authedUser = await api.register(userData);
-      sessionStorage.setItem("leximind_secure_session", JSON.stringify(authedUser));
+      sessionStorage.setItem("Lexi Guard_secure_session", JSON.stringify(authedUser));
       setUser(authedUser);
       return authedUser;
     } catch (err) {
@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      const raw = sessionStorage.getItem("leximind_secure_session");
+      const raw = sessionStorage.getItem("Lexi Guard_secure_session");
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed.refresh) {
@@ -65,7 +65,7 @@ export function AuthProvider({ children }) {
     } catch (e) {
       console.error("Backend logout failed", e);
     }
-    sessionStorage.removeItem("leximind_secure_session");
+    sessionStorage.removeItem("Lexi Guard_secure_session");
     setUser(null);
   };
 

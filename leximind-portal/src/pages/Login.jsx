@@ -129,7 +129,7 @@ export default function LoginPage() {
           <span className="login-in inline-flex items-center gap-1.5 text-[11px] font-medium text-cyan-300 bg-cyan-500/10 border border-cyan-400/20 rounded-full px-3 py-1 mb-3" style={{ animationDelay: "0.08s" }}>
             <Fingerprint className="w-3 h-3" /> AI-Powered Secure Legal & Investigation Intelligence Platform
           </span>
-          <h1 className="login-in text-3xl font-bold text-white tracking-tight text-center" style={{ animationDelay: "0.14s" }}>LexiMind Secure</h1>
+          <h1 className="login-in text-3xl font-bold text-white tracking-tight text-center" style={{ animationDelay: "0.14s" }}>Lexi Guard</h1>
           <p className="login-in text-sm text-slate-400 mt-2 tracking-wide" style={{ animationDelay: "0.2s" }}>Secure · Verify · Trace · Investigate</p>
         </div>
 
